@@ -154,3 +154,16 @@ docker logs <container_id>
 #### Wait before curl
 
 sleep 5
+
+Trivy Scan
+
+Purpose:
+Scan Docker images for vulnerabilities
+
+Command (CI):
+
+trivy image cicd-security-app
+
+Pipeline Behavior:
+
+Fails if HIGH or CRITICAL vulnerabilities found
