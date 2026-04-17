@@ -215,3 +215,17 @@ Use stable base image
 FROM node:18-slim
 Adjust scan severity
 severity: CRITICAL
+
+GitHub Actions Deprecation Warning
+
+Issue:
+Actions using deprecated Node.js version
+
+Fix:
+
+uses: actions/checkout@v4
+
+Optional:
+
+env:
+FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

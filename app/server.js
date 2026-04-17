@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 
+const API_KEY = "sk_test_123456789SECRETKEY";
+
 app.get('/', (req, res) => {
   res.send('DevOps Project Running 🚀');
 });
