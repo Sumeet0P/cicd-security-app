@@ -1,8 +1,10 @@
 # 🚀 CI/CD Security Project - Runbook
 
-## 1. Project Setup
+---
 
-### Create project structure
+# 📌 1. Project Setup
+
+## Create Project Structure
 
 ```bash
 mkdir cicd-security-app
@@ -12,57 +14,50 @@ mkdir app
 
 ---
 
-## 2. Initialize Node.js App
-
-### Create package.json
+# 📦 2. Initialize Node.js Application
 
 ```bash
 cd app
 npm init -y
 npm install express
-```
-
-### Create server file
-
-```bash
 touch server.js
 ```
 
 ---
 
-## 3. Run Application Locally
+# ▶️ 3. Run Application Locally
 
 ```bash
 node server.js
 ```
 
-Expected:
+**Expected:**
 
-- App runs on port 3000
+- App runs on port `3000`
 
 ---
 
-## 4. Docker Setup
+# 🐳 4. Docker Setup
 
-### Build Docker image
+## Build Image
 
 ```bash
 docker build -t cicd-security-app .
 ```
 
-### Run container
+## Run Container
 
 ```bash
 docker run -p 3000:3000 cicd-security-app
 ```
 
-Expected:
+**Expected:**
 
 - App accessible at http://localhost:3000
 
 ---
 
-## 5. Git Setup
+# 🔧 5. Git Setup
 
 ```bash
 git init
@@ -75,217 +70,298 @@ git push -u origin main
 
 ---
 
-## 6. CI Pipeline (GitHub Actions)
+# ⚙️ 6. CI/CD Pipeline Overview
 
-### File: .github/workflows/ci.yml
+## File Location
 
-Pipeline triggers:
+```
+.github/workflows/ci.yml
+```
 
-- On push to main branch
+## Trigger
 
-Steps:
+- On push to `main` branch
 
-1. Checkout code
-2. Build Docker image
+## Pipeline Flow
+
+1. Checkout Code
+2. Install Dependencies
+3. Snyk Scan (Code + Dependencies)
+4. Gitleaks Scan (Secrets)
+5. Docker Build
+6. Trivy Scan (Container Security)
 
 ---
 
-## 7. Troubleshooting
+# 🔐 7. Security Tools
 
-### Issue: Workflow push rejected
+## Snyk (SAST)
+
+- Scans dependencies for vulnerabilities
+
+## Gitleaks
+
+- Detects hardcoded secrets
+
+## Trivy
+
+- Scans Docker images for vulnerabilities
+
+---
+
+# 🛠️ 8. Common Issues & Fixes
+
+---
+
+## ❌ Issue: Workflow Push Rejected
 
 **Error:**
+
+```
 refusing to allow an OAuth App to create or update workflow
+```
 
 **Fix:**
 
 - Generate GitHub token with:
-  - repo
-  - workflow permissions
+  - `repo`
+  - `workflow` permissions
 
-- Use GitHub CLI:
-  - gh auth login
-  - Select: GitHub.com,
-  - HTTPS,
-  - Login with a web browser.
-  - Verify With one-time code Provided
+OR
+
+```bash
+gh auth login
+```
 
 ---
 
-### Issue: Docker build fails
+## ❌ Issue: App Not Accessible
+
+**Check:**
+
+- Port mapping (`3000:3000`)
+- App running on `0.0.0.0`
+
+---
+
+## ❌ Issue: Container Not Accessible in CI
+
+**Error:**
+
+```
+curl: (56) Recv failure
+```
+
+**Fix:**
+
+```bash
+docker ps -a
+docker logs <container_id>
+sleep 5
+```
+
+---
+
+## ❌ Issue: Docker Build Fails
 
 **Check:**
 
 - Correct file paths
-- package.json copied before install
+- `package.json` copied before install
 
 ---
 
-### Issue: App not accessible
+# 🔍 9. Trivy (Container Security)
 
-**Check:**
+## Purpose
 
-- Port mapping (3000:3000)
-- App listening on correct port
+Scan Docker image for vulnerabilities
+
+## Command
+
+```bash
+trivy image cicd-security-app
+```
+
+## Behavior
+
+- Fails pipeline on CRITICAL vulnerabilities
 
 ---
 
-### Container not accessible in CI
-
-**Error:**
-
-curl: (56) Recv failure
-
-- Possible causes:
-  - App not listening on 0.0.0.0
-  - Container not ready
-  - App crashed
+## ❌ Vulnerability Detected
 
 **Fix:**
 
-#### Check containers
-
-docker ps -a
-
-#### Check logs
-
-docker logs <container_id>
-
-#### Wait before curl
-
-sleep 5
-
-Trivy Scan
-
-Purpose:
-Scan Docker images for vulnerabilities
-
-Command (CI):
-
-trivy image cicd-security-app
-
-Pipeline Behavior:
-
-Fails if HIGH or CRITICAL vulnerabilities found
-
-📘 Update RUNBOOK (add this)
-Vulnerability Detected in Trivy
-
-Example:
-
-HIGH: picomatch vulnerability
-
-Fix:
-
+```bash
 npm update
 npm audit fix
+```
 
-Verify:
+---
 
-npm audit
+## ❌ Vulnerability Still Exists
 
-📘 Update RUNBOOK
+**Cause:**
 
-Add:
+- Base image or Docker cache
 
-Vulnerability persists after npm fix
+**Fix:**
 
-Cause:
-
-Issue may be from base image or cached layer
-
-Fix:
-
+```bash
 docker build --no-cache -t cicd-security-app .
+```
 
-Alternative:
+**Alternative:**
 
-Change base image version
+- Change base image (e.g., node:18-slim)
 
-Handling Excessive Vulnerabilities
+---
 
-Problem:
-Too many vulnerabilities from base image / dependencies
+## ⚠️ Too Many Vulnerabilities
 
-Strategy:
+**Solution:**
 
-Install only production dependencies
+```bash
 npm install --only=production
-Use stable base image
+```
+
+Use stable base image:
+
+```dockerfile
 FROM node:18-slim
-Adjust scan severity
+```
+
+Adjust scan severity:
+
+```yaml
 severity: CRITICAL
+```
 
-GitHub Actions Deprecation Warning
+---
 
-Issue:
-Actions using deprecated Node.js version
+# 🔐 10. Secret Detection (Gitleaks)
 
-Fix:
+## Purpose
 
-uses: actions/checkout@v4
+Detect exposed secrets in code
 
-Optional:
+## Pipeline Step
 
-env:
-FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-Secret Detection (Gitleaks)
-
-Purpose:
-Detect hardcoded secrets in code
-
-Pipeline Step:
-
+```yaml
 uses: gitleaks/gitleaks-action@v2
-Fixing Secret Leak
-Move secret to environment variable
-Add .env file
-Ignore .env in git
-Remove secret from repository
+```
 
-GitHub Actions Runtime Warning
+---
 
-Warning:
-Node.js 20 deprecated
+## ❌ Secret Found
 
-Status:
+**Fix Steps:**
 
-Actions auto-run on Node 24
-No immediate action required
+1. Move secret to environment variable
+2. Create `.env` file
+3. Add `.env` to `.gitignore`
+4. Remove secret from code
 
-Fix (best effort):
+---
 
-env:
-FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-SAST with Snyk
+# 🧠 11. Snyk (Code & Dependency Security)
 
-Purpose:
-Scan dependencies and code for vulnerabilities
+## Purpose
 
-Pipeline Step:
+Scan dependencies for vulnerabilities
 
+## Pipeline Step
+
+```yaml
 uses: snyk/actions/node@master
-Fixing Vulnerabilities
+```
+
+---
+
+## ❌ Error: No Supported Files Found
+
+**Cause:**
+
+- `package.json` not in root
+
+**Fix:**
+
+```yaml
+working-directory: ./app
+```
+
+---
+
+## ❌ Error: Missing node_modules
+
+**Cause:**
+
+- Dependencies not installed
+
+**Fix:**
+
+```yaml
+- name: Install dependencies
+  working-directory: ./app
+  run: npm install
+```
+
+---
+
+## ❌ Vulnerabilities Found
+
+**Fix:**
+
+```bash
 npm update
 npm audit fix
+```
 
-Snyk Error: No supported files found
+---
 
-Cause:
+# ⚠️ 12. GitHub Actions Warnings
 
-package.json not in root directory
+## Node.js Deprecation Warning
 
-Fix:
+**Issue:**
 
-working-directory: ./app
+- Actions using Node.js 20
 
-Snyk Error: Missing node_modules
+**Fix:**
 
-Cause:
-Dependencies not installed before scan
+```yaml
+uses: actions/checkout@v4
+```
 
-Fix:
+**Optional:**
 
-- name: Install dependencies
-  run: npm install
+```yaml
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+```
+
+---
+
+# 📘 13. Key Learnings
+
+- CI pipelines require correct execution order
+- Security must be layered (code + secrets + container)
+- Most failures come from environment/context issues
+- Not all vulnerabilities need immediate fixing (prioritize CRITICAL)
+
+---
+
+# 🚀 14. Final Pipeline Summary
+
+```text
+Code →
+Install Dependencies →
+Snyk →
+Gitleaks →
+Docker Build →
+Trivy →
+✅ Secure Build
+```
+
+---
