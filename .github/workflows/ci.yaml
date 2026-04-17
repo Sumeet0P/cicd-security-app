@@ -1,12 +1,12 @@
 name: CI Pipeline
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 on:
   push:
     branches:
       - main
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
@@ -15,6 +15,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Run Snyk to check vulnerabilities
+        uses: snyk/actions/node@master
+        with:
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Scan for secrets using Gitleaks
         uses: gitleaks/gitleaks-action@v2

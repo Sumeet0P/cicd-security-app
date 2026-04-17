@@ -229,3 +229,43 @@ Optional:
 
 env:
 FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+Secret Detection (Gitleaks)
+
+Purpose:
+Detect hardcoded secrets in code
+
+Pipeline Step:
+
+uses: gitleaks/gitleaks-action@v2
+Fixing Secret Leak
+Move secret to environment variable
+Add .env file
+Ignore .env in git
+Remove secret from repository
+
+GitHub Actions Runtime Warning
+
+Warning:
+Node.js 20 deprecated
+
+Status:
+
+Actions auto-run on Node 24
+No immediate action required
+
+Fix (best effort):
+
+env:
+FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+SAST with Snyk
+
+Purpose:
+Scan dependencies and code for vulnerabilities
+
+Pipeline Step:
+
+uses: snyk/actions/node@master
+Fixing Vulnerabilities
+npm update
+npm audit fix
