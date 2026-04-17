@@ -269,3 +269,23 @@ uses: snyk/actions/node@master
 Fixing Vulnerabilities
 npm update
 npm audit fix
+
+Snyk Error: No supported files found
+
+Cause:
+
+package.json not in root directory
+
+Fix:
+
+working-directory: ./app
+
+Snyk Error: Missing node_modules
+
+Cause:
+Dependencies not installed before scan
+
+Fix:
+
+- name: Install dependencies
+  run: npm install

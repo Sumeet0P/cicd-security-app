@@ -16,6 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install dependencies
+        working-directory: ./app
+        run: npm install
+
       - name: Run Snyk to check vulnerabilities
         uses: snyk/actions/node@master
         with:
