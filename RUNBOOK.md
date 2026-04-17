@@ -1,6 +1,5 @@
 # 🚀 CI/CD Security Project - Runbook
 
-
 ## 1. Project Setup
 
 ### Create project structure
@@ -39,7 +38,7 @@ node server.js
 
 Expected:
 
-* App runs on port 3000
+- App runs on port 3000
 
 ---
 
@@ -59,7 +58,7 @@ docker run -p 3000:3000 cicd-security-app
 
 Expected:
 
-* App accessible at http://localhost:3000
+- App accessible at http://localhost:3000
 
 ---
 
@@ -82,7 +81,7 @@ git push -u origin main
 
 Pipeline triggers:
 
-* On push to main branch
+- On push to main branch
 
 Steps:
 
@@ -100,18 +99,16 @@ refusing to allow an OAuth App to create or update workflow
 
 **Fix:**
 
-* Generate GitHub token with:
+- Generate GitHub token with:
+  - repo
+  - workflow permissions
 
-  * repo
-  * workflow permissions
-
-* Use GitHub CLI:
-
-    * gh auth login
-    * Select: GitHub.com,
-    * HTTPS,
-    * Login with a web browser.
-    * Verify With one-time code Provided
+- Use GitHub CLI:
+  - gh auth login
+  - Select: GitHub.com,
+  - HTTPS,
+  - Login with a web browser.
+  - Verify With one-time code Provided
 
 ---
 
@@ -119,8 +116,8 @@ refusing to allow an OAuth App to create or update workflow
 
 **Check:**
 
-* Correct file paths
-* package.json copied before install
+- Correct file paths
+- package.json copied before install
 
 ---
 
@@ -128,7 +125,32 @@ refusing to allow an OAuth App to create or update workflow
 
 **Check:**
 
-* Port mapping (3000:3000)
-* App listening on correct port
+- Port mapping (3000:3000)
+- App listening on correct port
 
 ---
+
+### Container not accessible in CI
+
+**Error:**
+
+curl: (56) Recv failure
+
+- Possible causes:
+  - App not listening on 0.0.0.0
+  - Container not ready
+  - App crashed
+
+**Fix:**
+
+#### Check containers
+
+docker ps -a
+
+#### Check logs
+
+docker logs <container_id>
+
+#### Wait before curl
+
+sleep 5

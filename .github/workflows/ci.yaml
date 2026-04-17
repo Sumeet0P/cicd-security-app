@@ -19,5 +19,14 @@ jobs:
       - name: Run container
         run: docker run -d -p 3000:3000 cicd-security-app
 
+      - name: Wait for app
+        run: sleep 5  
+
+      - name: List containers
+        run: docker ps -a
+
+      - name: Show container logs
+        run: docker logs $(docker ps -q)
+
       - name: Check app
         run: curl http://localhost:3000
