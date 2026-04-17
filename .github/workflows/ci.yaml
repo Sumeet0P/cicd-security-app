@@ -15,3 +15,9 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t cicd-security-app .
+
+      - name: Run container
+        run: docker run -d -p 3000:3000 devops-app
+
+      - name: Check app
+        run: curl http://localhost:3000
