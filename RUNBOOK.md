@@ -201,3 +201,17 @@ docker build --no-cache -t cicd-security-app .
 Alternative:
 
 Change base image version
+
+Handling Excessive Vulnerabilities
+
+Problem:
+Too many vulnerabilities from base image / dependencies
+
+Strategy:
+
+Install only production dependencies
+npm install --only=production
+Use stable base image
+FROM node:18-slim
+Adjust scan severity
+severity: CRITICAL

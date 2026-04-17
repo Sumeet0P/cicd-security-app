@@ -1,9 +1,9 @@
-FROM node:18
+FROM node:18-slim
 
 WORKDIR /app
 
 COPY app/package*.json ./
-RUN npm install
+RUN npm install --only=production
 
 COPY app/ .
 

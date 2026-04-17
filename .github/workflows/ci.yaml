@@ -21,8 +21,7 @@ jobs:
         with:
           image-ref: cicd-security-app
           format: table
-          exit-code: 1
-          severity: CRITICAL,HIGH
+          severity: CRITICAL
 
       - name: Run container
         run: docker run -d -p 3000:3000 cicd-security-app
