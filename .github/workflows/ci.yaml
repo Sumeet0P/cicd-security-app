@@ -16,11 +16,19 @@ jobs:
       - name: Build Docker image
         run: docker build -t cicd-security-app .
 
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: cicd-security-app
+          format: table
+          exit-code: 1
+          severity: CRITICAL,HIGH
+
       - name: Run container
         run: docker run -d -p 3000:3000 cicd-security-app
 
       - name: Wait for app
-        run: sleep 5  
+        run: sleep 5
 
       - name: List containers
         run: docker ps -a
