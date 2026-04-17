@@ -167,3 +167,19 @@ trivy image cicd-security-app
 Pipeline Behavior:
 
 Fails if HIGH or CRITICAL vulnerabilities found
+
+📘 Update RUNBOOK (add this)
+Vulnerability Detected in Trivy
+
+Example:
+
+HIGH: picomatch vulnerability
+
+Fix:
+
+npm update
+npm audit fix
+
+Verify:
+
+npm audit
