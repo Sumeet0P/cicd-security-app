@@ -20,6 +20,7 @@ jobs:
         uses: snyk/actions/node@master
         with:
           command: test
+          args: --file=app/package.json
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
