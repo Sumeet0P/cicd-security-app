@@ -183,3 +183,21 @@ npm audit fix
 Verify:
 
 npm audit
+
+📘 Update RUNBOOK
+
+Add:
+
+Vulnerability persists after npm fix
+
+Cause:
+
+Issue may be from base image or cached layer
+
+Fix:
+
+docker build --no-cache -t cicd-security-app .
+
+Alternative:
+
+Change base image version
