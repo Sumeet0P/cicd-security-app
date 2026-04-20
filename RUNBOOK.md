@@ -80,40 +80,57 @@ git push -u origin main
 
 ## Trigger
 
-- On push to `main` branch
+- On push to `main`
 
 ## Pipeline Flow
 
-1. Checkout Code
-2. Install Dependencies
-3. Snyk Scan (Code + Dependencies)
-4. Gitleaks Scan (Secrets)
-5. Docker Build
-6. Trivy Scan (Container Security)
+```
+Code →
+Install Dependencies →
+Snyk →
+Gitleaks →
+Docker Build →
+Trivy →
+Deploy (EC2)
+```
 
 ---
 
 # 🔐 7. Security Tools
 
-## Snyk (SAST)
-
-- Scans dependencies for vulnerabilities
-
-## Gitleaks
-
-- Detects hardcoded secrets
-
-## Trivy
-
-- Scans Docker images for vulnerabilities
+| Tool     | Purpose                           |
+| -------- | --------------------------------- |
+| Snyk     | Dependency vulnerability scanning |
+| Gitleaks | Secret detection                  |
+| Trivy    | Container vulnerability scanning  |
 
 ---
 
-# 🛠️ 8. Common Issues & Fixes
+# 🚀 8. Deployment (EC2)
+
+## Purpose
+
+Deploy application automatically after successful pipeline
+
+## Steps Executed in CI
+
+```bash
+ssh into EC2
+cd cicd-security-app || git clone repo
+git pull origin main
+docker stop app || true
+docker rm app || true
+docker build -t cicd-security-app .
+docker run -d -p 3000:3000 --name app cicd-security-app
+```
 
 ---
 
-## ❌ Issue: Workflow Push Rejected
+# 🛠️ 9. Common Issues & Fixes
+
+---
+
+## ❌ Workflow Push Rejected
 
 **Error:**
 
@@ -123,11 +140,8 @@ refusing to allow an OAuth App to create or update workflow
 
 **Fix:**
 
-- Generate GitHub token with:
-  - `repo`
-  - `workflow` permissions
-
-OR
+- Generate GitHub token with `repo` + `workflow`
+  OR
 
 ```bash
 gh auth login
@@ -135,16 +149,32 @@ gh auth login
 
 ---
 
-## ❌ Issue: App Not Accessible
+## ❌ SSH Authentication Failed
 
-**Check:**
+**Error:**
 
-- Port mapping (`3000:3000`)
-- App running on `0.0.0.0`
+```
+ssh: unable to authenticate
+```
+
+**Fix:**
+
+- Ensure EC2_KEY contains full `.pem` private key
+- No extra characters (like `%`)
+- Correct username: `ubuntu`
 
 ---
 
-## ❌ Issue: Container Not Accessible in CI
+## ❌ App Not Accessible
+
+**Check:**
+
+- Port 3000 open in security group
+- App listening on `0.0.0.0`
+
+---
+
+## ❌ Container Not Accessible in CI
 
 **Error:**
 
@@ -162,7 +192,7 @@ sleep 5
 
 ---
 
-## ❌ Issue: Docker Build Fails
+## ❌ Docker Build Fails
 
 **Check:**
 
@@ -171,11 +201,7 @@ sleep 5
 
 ---
 
-# 🔍 9. Trivy (Container Security)
-
-## Purpose
-
-Scan Docker image for vulnerabilities
+# 🔍 10. Trivy (Container Security)
 
 ## Command
 
@@ -183,15 +209,7 @@ Scan Docker image for vulnerabilities
 trivy image cicd-security-app
 ```
 
-## Behavior
-
-- Fails pipeline on CRITICAL vulnerabilities
-
----
-
-## ❌ Vulnerability Detected
-
-**Fix:**
+## Fix Vulnerabilities
 
 ```bash
 npm update
@@ -200,11 +218,7 @@ npm audit fix
 
 ---
 
-## ❌ Vulnerability Still Exists
-
-**Cause:**
-
-- Base image or Docker cache
+## ❌ Persistent Vulnerabilities
 
 **Fix:**
 
@@ -212,129 +226,52 @@ npm audit fix
 docker build --no-cache -t cicd-security-app .
 ```
 
-**Alternative:**
-
-- Change base image (e.g., node:18-slim)
-
----
-
-## ⚠️ Too Many Vulnerabilities
-
-**Solution:**
-
-```bash
-npm install --only=production
-```
-
-Use stable base image:
+Use better base image:
 
 ```dockerfile
 FROM node:18-slim
 ```
 
-Adjust scan severity:
-
-```yaml
-severity: CRITICAL
-```
-
 ---
 
-# 🔐 10. Secret Detection (Gitleaks)
+# 🔐 11. Gitleaks (Secrets)
 
-## Purpose
-
-Detect exposed secrets in code
-
-## Pipeline Step
+## Detect Secrets
 
 ```yaml
 uses: gitleaks/gitleaks-action@v2
 ```
 
----
+## Fix
 
-## ❌ Secret Found
-
-**Fix Steps:**
-
-1. Move secret to environment variable
-2. Create `.env` file
-3. Add `.env` to `.gitignore`
-4. Remove secret from code
+- Move secrets to env variables
+- Add `.env` to `.gitignore`
 
 ---
 
-# 🧠 11. Snyk (Code & Dependency Security)
+# 🧠 12. Snyk (Dependencies)
 
-## Purpose
-
-Scan dependencies for vulnerabilities
-
-## Pipeline Step
-
-```yaml
-uses: snyk/actions/node@master
-```
-
----
-
-## ❌ Error: No Supported Files Found
-
-**Cause:**
-
-- `package.json` not in root
-
-**Fix:**
+## Fix Path Issue
 
 ```yaml
 working-directory: ./app
 ```
 
----
-
-## ❌ Error: Missing node_modules
-
-**Cause:**
-
-- Dependencies not installed
-
-**Fix:**
+## Install Dependencies
 
 ```yaml
-- name: Install dependencies
-  working-directory: ./app
-  run: npm install
+run: npm install
 ```
 
 ---
 
-## ❌ Vulnerabilities Found
-
-**Fix:**
-
-```bash
-npm update
-npm audit fix
-```
-
----
-
-# ⚠️ 12. GitHub Actions Warnings
-
-## Node.js Deprecation Warning
-
-**Issue:**
-
-- Actions using Node.js 20
-
-**Fix:**
+# ⚠️ 13. GitHub Actions Warning
 
 ```yaml
 uses: actions/checkout@v4
 ```
 
-**Optional:**
+Optional:
 
 ```yaml
 env:
@@ -343,38 +280,23 @@ env:
 
 ---
 
-# 📘 13. Key Learnings
+# 📘 14. Key Learnings
 
-- CI pipelines require correct execution order
-- Security must be layered (code + secrets + container)
-- Most failures come from environment/context issues
-- Not all vulnerabilities need immediate fixing (prioritize CRITICAL)
+- CI pipelines require correct step ordering
+- Security must be layered
+- Most failures are environment-related
+- Not all vulnerabilities need fixing immediately
 
 ---
 
-# 🚀 14. Final Pipeline Summary
+# 🚀 15. Final Pipeline
 
-```text
+```
 Code →
-Install Dependencies →
 Snyk →
 Gitleaks →
-Docker Build →
+Docker →
 Trivy →
-✅ Secure Build
+Deploy →
+Live App
 ```
-
----
-
-
-Deploy to EC2
-
-Purpose:
-Deploy application after successful pipeline
-
-Steps:
-
-ssh into EC2
-git pull latest code
-docker build
-docker run   
