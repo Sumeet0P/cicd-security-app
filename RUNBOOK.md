@@ -365,3 +365,16 @@ Trivy →
 ```
 
 ---
+
+
+Deploy to EC2
+
+Purpose:
+Deploy application after successful pipeline
+
+Steps:
+
+ssh into EC2
+git pull latest code
+docker build
+docker run

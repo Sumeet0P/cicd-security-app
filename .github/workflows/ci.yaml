@@ -55,3 +55,18 @@ jobs:
 
       - name: Check app
         run: curl http://localhost:3000
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd cicd-security-app || git clone https://github.com/Sumeet0P/cicd-security-app.git
+            cd cicd-security-app
+            git pull origin main
+            docker stop app || true
+            docker rm app || true
+            docker build -t cicd-security-app .
+            docker run -d -p 3000:3000 --name app cicd-security-app      
