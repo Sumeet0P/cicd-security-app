@@ -4,9 +4,15 @@
 
 ## 📌 Overview
 
-This project demonstrates a **secure CI/CD pipeline with automated deployment** integrating DevSecOps tools to ensure application security at every stage.
+This project demonstrates a **secure CI/CD pipeline with automated deployment** using DevSecOps practices.
 
-The pipeline enforces **security gates**, blocking builds if critical vulnerabilities or secrets are detected.
+The pipeline integrates multiple security tools to ensure that:
+
+* Code is free from vulnerabilities
+* Secrets are not exposed
+* Container images are secure
+
+🚨 The pipeline enforces **security gates**, meaning it automatically **fails the build** if critical issues are detected.
 
 ---
 
@@ -20,14 +26,22 @@ http://<your-ec2-ip>:3000
 
 ```
 Developer →
-GitHub →
-GitHub Actions →
-[ Snyk ]
-[ Gitleaks ]
+GitHub Repository →
+GitHub Actions Pipeline →
+   ↓
+[ Install Dependencies ]
+   ↓
+[ Snyk (Dependency Scan) ]
+   ↓
+[ Gitleaks (Secret Detection) ]
+   ↓
 [ Docker Build ]
-[ Trivy ]
-        ↓
-SSH →
+   ↓
+[ Trivy (Container Scan) ]
+   ↓
+✅ Secure Build / ❌ Blocked Build
+   ↓
+SSH Deployment →
 AWS EC2 →
 Live Application 🌍
 ```
@@ -36,118 +50,180 @@ Live Application 🌍
 
 ## 🛠️ Tech Stack
 
-- GitHub Actions (CI/CD)
-- Docker
-- AWS EC2
-- Snyk (SAST)
-- Gitleaks (Secrets)
-- Trivy (Container Security)
-- Node.js (Express)
+* **CI/CD:** GitHub Actions
+* **Containerization:** Docker
+* **Cloud:** AWS EC2
+* **SAST (Dependencies):** Snyk
+* **Secret Detection:** Gitleaks
+* **Container Security:** Trivy
+* **Backend:** Node.js (Express)
 
 ---
 
-## 🔥 Features
+## 🔥 Key Features
 
-- ✅ Automated CI/CD pipeline
-- 🔐 Secret detection (Gitleaks)
-- 🛡️ Dependency scanning (Snyk)
-- 🐳 Container security (Trivy)
-- 🚀 Automated deployment to EC2
-- ❌ Build fails on security issues
+* ✅ Automated CI pipeline on every push
+* 🔐 Secret detection using Gitleaks
+* 🛡️ Dependency vulnerability scanning using Snyk
+* 🐳 Container vulnerability scanning using Trivy
+* ❌ Pipeline fails on security issues
+* 🚀 Automated deployment to AWS EC2
+* 📦 Optimized Docker image using production dependencies
 
 ---
 
 ## ⚙️ Pipeline Workflow
 
 1. Code pushed to GitHub
-2. Dependencies installed
-3. Snyk scans for vulnerabilities
-4. Gitleaks scans for secrets
+2. Dependencies installed (`npm install`)
+3. Snyk scans dependencies for vulnerabilities
+4. Gitleaks scans repository for secrets
 5. Docker image is built
-6. Trivy scans container
-7. Application deployed to EC2
+6. Trivy scans container image
+7. Application deployed to EC2 via SSH
+
+---
+
+## 🔐 Security Gate Behavior
+
+The pipeline is configured to **fail automatically** if:
+
+* High/Critical vulnerabilities are detected (Snyk / Trivy)
+* Secrets are detected in the repository (Gitleaks)
 
 ---
 
 ## 🚀 Deployment
 
-Deployment is automated via GitHub Actions:
+Deployment is automated using GitHub Actions:
 
-- SSH into EC2
-- Pull latest code
-- Build Docker image
-- Restart container
+```bash
+ssh into EC2
+git pull latest code
+docker build -t cicd-security-app .
+docker run -d -p 3000:3000 --name app cicd-security-app
+```
 
 ---
 
-## 🧪 Failure Scenarios Tested
+## ⚠️ EC2 Configuration
 
-- Secret leakage → blocked by Gitleaks
-- Vulnerable dependency → blocked by Snyk
-- Container vulnerabilities → blocked by Trivy
+Make sure:
+
+* Port **3000** is open in Security Group
+* Port **22 (SSH)** is allowed
+* Correct user is used (`ubuntu`)
+
+---
+
+## 🧪 Failure Scenarios (Tested)
+
+### ❌ Secret Leak
+
+* Added fake API key in code
+* Gitleaks detected and blocked pipeline
+
+---
+
+### ❌ Vulnerable Dependency
+
+* Installed vulnerable package (`lodash@4.17.20`)
+* Snyk detected multiple issues and failed build
+
+---
+
+### ⚠️ Container Vulnerabilities
+
+* Trivy detected vulnerabilities in base image
+* Resolved using:
+
+  * Updated dependencies
+  * Rebuilt image without cache
 
 ---
 
 ## 🛠️ Local Setup
 
+### Clone Repository
+
 ```bash
 git clone <repo-url>
 cd cicd-security-app
+```
+
+### Run Locally
+
+```bash
 cd app
 npm install
 node server.js
 ```
 
-Docker:
+---
+
+### Run with Docker
 
 ```bash
 docker build -t cicd-security-app .
 docker run -p 3000:3000 cicd-security-app
 ```
 
+Open:
+
+```
+http://localhost:3000
+```
+
 ---
 
 ## 📘 Documentation
 
-Refer:
+Detailed step-by-step guide:
 
 ```
 RUNBOOK.md
 ```
 
----
+Includes:
 
-## ⚠️ Security Practices
-
-- No hardcoded secrets
-- Environment variable usage
-- Dependency vulnerability management
-- Container hardening
-- CI-based security enforcement
+* Setup steps
+* Commands used
+* Troubleshooting
+* Security fixes
 
 ---
 
 ## 📸 Screenshots
-
-- Successful pipeline
-- Failed security scans
-- Live application
+* ✅ Successful pipeline run![alt text](/screenshot/image.png)
+* ❌ Snyk failure![alt text](/screenshot/image-1.png)
+* ❌ Gitleaks detection![alt text](/screenshot/image-2.png)
+* ⚠️ Trivy scan results![alt text](/screenshot/image-3.png)
+* 🚀 Deployment logs![alt text](/screenshot/image-4.png)
 
 ---
 
 ## 💡 Key Learnings
 
-- Built end-to-end DevSecOps pipeline
-- Implemented layered security
-- Debugged real-world CI/CD issues
-- Automated deployment to cloud
+* Implemented **end-to-end DevSecOps pipeline**
+* Learned handling **real-world vulnerabilities**
+* Debugged CI/CD failures and environment issues
+* Understood **security-first deployment workflows**
+
+---
+
+## 🚀 Future Improvements
+
+* Add monitoring (Prometheus + Grafana)
+* Add alerts (Slack / Discord)
+* Use Kubernetes for deployment
+* Add Infrastructure as Code (Terraform)
 
 ---
 
 ## 👨‍💻 Author
 
-Built to demonstrate real-world DevSecOps practices.
+Built as a hands-on project to demonstrate real-world DevSecOps practices.
 
 ---
 
-⭐ Star this repo if you like it!
+⭐ If this helped or inspired you, consider giving it a star!
