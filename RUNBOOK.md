@@ -377,4 +377,4 @@ Steps:
 ssh into EC2
 git pull latest code
 docker build
-docker run
+docker run   
