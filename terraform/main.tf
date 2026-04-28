@@ -8,7 +8,7 @@ resource "aws_instance" "cicd-security-app" {
 
   key_name = "cicd-security-app"
 
-  vpc_security_group_ids = [aws_security_group.app_sg.id]
+  vpc_security_group_ids = [aws_security_group.app_sg-1.id]
 
   user_data = <<-EOF
               #!/bin/bash
