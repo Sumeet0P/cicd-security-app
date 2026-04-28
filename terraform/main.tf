@@ -31,7 +31,7 @@ resource "aws_instance" "cicd-security-app" {
   }
 }
 
-resource "aws_security_group" "app_sg-1" {
+resource "aws_security_group" "app_sg" {
   name        = "cicd-app-sg-1"
   description = "Allow SSH and app traffic"
 
