@@ -68,5 +68,5 @@ resource "aws_security_group" "app_sg" {
 }
 
 output "public_ip" {
-  value = aws_instance.app.public_ip
+  value = aws_instance.cicd-security-app.public_ip
 }
