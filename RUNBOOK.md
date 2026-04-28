@@ -106,25 +106,56 @@ Deploy (EC2)
 
 ---
 
-# 🚀 8. Deployment (EC2)
+# 🚀 Deployment via Terraform
 
-## Purpose
+## Commands used in CI:
 
-Deploy application automatically after successful pipeline
-
-## Steps Executed in CI
-
-```bash
-ssh into EC2
-cd cicd-security-app || git clone repo
-git pull origin main
-docker stop app || true
-docker rm app || true
-docker build -t cicd-security-app .
-docker run -d -p 3000:3000 --name app cicd-security-app
-```
+terraform init
+terraform apply -auto-approve -var="docker_image=<image>"
 
 ---
+
+## 🔐 AWS Credentials Setup
+
+Terraform requires AWS credentials:
+
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+
+Configured securely using GitHub Secrets and AWS Actions.
+
+## 🔒 Security Groups
+
+Defined in Terraform:
+
+- Port 22 → SSH access
+- Port 3000 → Application access
+
+Ensures controlled network exposure.
+
+## ⚙️ EC2 Bootstrapping (user_data)
+
+EC2 automatically:
+
+- Installs Docker
+- Starts Docker service
+- Pulls container image
+- Runs application
+
+This removes need for manual configuration.
+
+## 🌐 Get Public IP
+
+terraform output public_ip
+
+Used to access deployed application.
+
+## 🧹 Cleanup Resources
+
+To avoid AWS charges:
+
+terraform destroy -auto-approve
+
 
 # 🛠️ 9. Common Issues & Fixes
 

@@ -41,8 +41,14 @@ GitHub Actions Pipeline →
    ↓
 ✅ Secure Build / ❌ Blocked Build
    ↓
-SSH Deployment →
-AWS EC2 →
+Docker Image pushed to Registry 
+   ↓
+Terraform provisions EC2 
+   ↓
+EC2 bootstraps via user_data 
+   ↓
+Docker container runs automatically
+   ↓
 Live Application 🌍
 ```
 
@@ -80,7 +86,10 @@ Live Application 🌍
 4. Gitleaks scans repository for secrets
 5. Docker image is built
 6. Trivy scans container image
-7. Application deployed to EC2 via SSH
+7. Push Docker Image
+8. Terraform Apply
+9. Provision EC2
+10. Auto Deploy Container
 
 ---
 
@@ -93,16 +102,16 @@ The pipeline is configured to **fail automatically** if:
 
 ---
 
-## 🚀 Deployment
+## 🚀 Deployment (Automated via Terraform)
 
-Deployment is automated using GitHub Actions:
+After successful CI pipeline:
 
-```bash
-ssh into EC2
-git pull latest code
-docker build -t cicd-security-app .
-docker run -d -p 3000:3000 --name app cicd-security-app
-```
+1. Docker image is pushed to DockerHub
+2. Terraform provisions a new EC2 instance
+3. EC2 installs Docker automatically
+4. Container is pulled and started using user_data
+
+No manual SSH or server setup is required.
 
 ---
 
@@ -173,6 +182,31 @@ Open:
 ```
 http://localhost:3000
 ```
+---
+
+## ☁️ Infrastructure as Code (Terraform)
+
+Infrastructure is provisioned using Terraform:
+
+- EC2 instance is created dynamically
+- Security groups are defined (ports 22, 3000)
+- Docker is installed automatically using user_data
+- Application is deployed during instance boot
+
+This ensures reproducible and automated deployments.
+---
+
+## 📦 Container Registry
+
+Docker image is pushed to DockerHub:
+
+- Ensures consistent deployments
+- Removes dependency on local builds
+- Enables image-based deployment
+
+Example:
+
+docker push <username>/cicd-security-app
 
 ---
 
@@ -202,6 +236,15 @@ Includes:
 
 ---
 
+## 🚀 Production Improvements
+
+- Replaced SSH-based deployment with Terraform
+- Used Docker registry for immutable deployments
+- Defined security groups via Infrastructure as Code
+- Eliminated manual server configuration
+
+---
+
 ## 💡 Key Learnings
 
 * Implemented **end-to-end DevSecOps pipeline**
@@ -223,6 +266,7 @@ Includes:
 ## 👨‍💻 Author
 
 Built as a hands-on project to demonstrate real-world DevSecOps practices.
+Deployment was improved by moving from SSH-based execution to Terraform-based infrastructure provisioning and image-based deployment.
 
 ---
 
