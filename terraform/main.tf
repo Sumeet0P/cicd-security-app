@@ -6,7 +6,7 @@ resource "aws_instance" "cicd-security-app" {
   ami           = "ami-05d62b9bc5a6ca605" # Ubuntu (Stockholm)
   instance_type = "t3.micro"
 
-  key_name = "cicd-security-key.pem"
+  key_name = "cicd-security-app"
 
   security_groups = ["default"]
 
