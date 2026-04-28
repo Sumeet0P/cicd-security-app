@@ -4,7 +4,7 @@ const app = express();
 const API_KEY = process.env.API_KEY;
 
 app.get('/', (req, res) => {
-  res.send('DevOps Project Running 🚀');
+  res.send('Hello from cicd-security project 🚀');
 });
 
 app.listen(3000, '0.0.0.0', () => {
