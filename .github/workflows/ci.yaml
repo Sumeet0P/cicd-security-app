@@ -56,17 +56,25 @@ jobs:
       - name: Check app
         run: curl http://localhost:3000
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            cd cicd-security-app || git clone https://github.com/Sumeet0P/cicd-security-app.git
-            cd cicd-security-app
-            git pull origin main
-            docker stop app || true
-            docker rm app || true
-            docker build -t cicd-security-app .
-            docker run -d -p 3000:3000 --name app cicd-security-app      
+      - name: Login to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/cicd-security-app .
+
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/cicd-security-app
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve -var="docker_image=${{ secrets.DOCKERHUB_USERNAME }}/cicd-security-app"
+
+      - name: Wait for EC2
+        run: sleep 60
