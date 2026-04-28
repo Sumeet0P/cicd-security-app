@@ -70,5 +70,3 @@ resource "aws_security_group" "app_sg" {
 output "public_ip" {
   value = aws_instance.app.public_ip
 }
-
-terraform output public_ip
