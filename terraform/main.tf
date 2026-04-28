@@ -8,7 +8,7 @@ resource "aws_instance" "cicd-security-app" {
 
   key_name = "cicd-security-app"
 
-  vpc_security_group_ids = [aws_security_group.app_sg-1.id]
+  vpc_security_group_ids = [aws_security_group.app_sg.id]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -32,7 +32,7 @@ resource "aws_instance" "cicd-security-app" {
 }
 
 resource "aws_security_group" "app_sg-1" {
-  name        = "cicd-app-sg"
+  name        = "cicd-app-sg-1"
   description = "Allow SSH and app traffic"
 
   ingress {
