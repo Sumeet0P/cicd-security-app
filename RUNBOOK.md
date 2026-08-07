@@ -331,3 +331,5 @@ Trivy →
 Deploy →
 Live App
 ```
+
+mkdir -p src/{controllers,routes,models,middleware,config} && touch src/app.js src/server.js src/config/db.js src/routes/authRoutes.js src/routes/taskRoutes.js

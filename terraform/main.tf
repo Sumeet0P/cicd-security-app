@@ -1,10 +1,10 @@
 provider "aws" {
-  region = "eu-north-1"
+  region = "ap-south-1"
 }
 
 resource "aws_instance" "cicd-security-app" {
-  ami           = "ami-05d62b9bc5a6ca605" # Ubuntu (Stockholm)
-  instance_type = "t3.micro"
+  ami           = "ami-01a00762f46d584a1" # Ubuntu 
+  instance_type = "t3.small"
 
   key_name = "cicd-security-app"
 
