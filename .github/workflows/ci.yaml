@@ -57,8 +57,8 @@ jobs:
         if: always()
         run: |
           docker ps -a
-          docker logs app-test || true
-          docker inspect app-test
+          docker logs cicd-security-app || true
+          docker inspect cicd-security-app
 
       - name: Check app
         run: curl http://localhost:3000
