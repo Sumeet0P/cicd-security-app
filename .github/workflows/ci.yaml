@@ -42,7 +42,10 @@ jobs:
           severity: CRITICAL
 
       - name: Run container
-        run: docker run -d -p 3000:3000 cicd-security-app
+        run: docker run -d \
+              --name app-test \
+              -p 3000:3000 \
+              cicd-security-app
 
       - name: Wait for app
         run: sleep 5
@@ -50,8 +53,12 @@ jobs:
       - name: List containers
         run: docker ps -a
 
-      - name: Show container logs
-        run: docker logs $(docker ps -q)
+      - name: Debug container
+        if: always()
+        run: |
+          docker ps -a
+          docker logs app-test || true
+          docker inspect app-test
 
       - name: Check app
         run: curl http://localhost:3000
